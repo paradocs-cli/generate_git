@@ -3,11 +3,21 @@ package gengit
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+type GitOptions struct {
+	CommitOptions struct {
+		Name    string
+		Message string
+		Email   string
+	}
+}
 
 var (
 	repo *git.Repository
@@ -15,8 +25,8 @@ var (
 
 // InitRepo takes a string argument for repo path and then checks to see if it has already been initialized
 // if it has it returns the Repository, if not it initializes it and returns the repository
-func InitRepo(w string)(*git.Repository,error){
-	check , err := CheckForGit()
+func InitRepo(w string) (*git.Repository, error) {
+	check, err := CheckForGit()
 	if err != nil {
 		return nil, fmt.Errorf("%v", err.Error())
 	}
@@ -36,26 +46,37 @@ func InitRepo(w string)(*git.Repository,error){
 	return repo, nil
 }
 
-// AddRefs adds the changes made to the staging area to be committed 
-func AddRefs(r git.Repository) error{
+// AddRefs adds the changes made to the staging area to be committed
+func AddRefs(r git.Repository) (*git.Worktree, error) {
 	tree, err := r.Worktree()
 	if err != nil {
-		return fmt.Errorf("%v", err.Error())
+		return tree, fmt.Errorf("%v", err.Error())
 	}
 	_, err = tree.Add(".")
-	return nil
+	return tree, nil
 }
 
-func CommitObjs(){
-
+// CommitObjs commits updates for the current repository
+func CommitObjs(w git.Worktree, o GitOptions) (string, error) {
+	commit, err := w.Commit(o.CommitOptions.Message, &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  o.CommitOptions.Name,
+			Email: o.CommitOptions.Email,
+			When:  time.Now(),
+		},
+	})
+	if err != nil {
+		return commit.String(), fmt.Errorf("%v", err.Error())
+	}
+	return commit.String(), nil
 }
 
 // CheckForGit checks for a .git directory to avoid reinitialization of an already existsing git repository
-func CheckForGit() (bool, error){
+func CheckForGit() (bool, error) {
 	var dirs []string
 	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Fatalf("error checking filepath.Walk: %v\n",err)
+			log.Fatalf("error checking filepath.Walk: %v\n", err)
 		}
 
 		dirs = append(dirs, path)
@@ -66,7 +87,7 @@ func CheckForGit() (bool, error){
 	}
 
 	for _, v := range dirs {
-		dir, err  := os.ReadDir(v)
+		dir, err := os.ReadDir(v)
 		if err != nil {
 			log.Fatal(err)
 		}
