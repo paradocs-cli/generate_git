@@ -13,6 +13,8 @@ var (
 	repo *git.Repository
 )
 
+// InitRepo takes a string argument for repo path and then checks to see if it has already been initialized
+// if it has it returns the Repository, if not it initializes it and returns the repository
 func InitRepo(w string)(*git.Repository,error){
 	check , err := CheckForGit()
 	if err != nil {
@@ -25,9 +27,9 @@ func InitRepo(w string)(*git.Repository,error){
 		}
 		return repo, nil
 	} else {
-		init, err := git.PlainInit(w, false)
+		repo, err = git.PlainInit(w, false)
 		if err != nil {
-			return init, fmt.Errorf("%v", err.Error())
+			return repo, fmt.Errorf("%v", err.Error())
 
 		}
 	}
