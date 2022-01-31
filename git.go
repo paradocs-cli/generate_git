@@ -36,6 +36,7 @@ func InitRepo(w string)(*git.Repository,error){
 	return repo, nil
 }
 
+// AddRefs adds the changes made to the staging area to be committed 
 func AddRefs(r git.Repository) error{
 	tree, err := r.Worktree()
 	if err != nil {
