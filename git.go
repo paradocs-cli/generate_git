@@ -36,8 +36,13 @@ func InitRepo(w string)(*git.Repository,error){
 	return repo, nil
 }
 
-func AddRefs(){
-
+func AddRefs(r git.Repository) error{
+	tree, err := r.Worktree()
+	if err != nil {
+		return fmt.Errorf("%v", err.Error())
+	}
+	_, err = tree.Add(".")
+	return nil
 }
 
 func CommitObjs(){
