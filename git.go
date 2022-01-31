@@ -1,18 +1,37 @@
 package gengit
 
 import (
+	"fmt"
+	"github.com/go-git/go-git/v5"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-type GitScaffold struct {
-	RootPath string
+var (
+	repo *git.Repository
+)
 
-}
-func InitRepo(){
+func InitRepo(w string)(*git.Repository,error){
+	check , err := CheckForGit()
+	if err != nil {
+		return nil, fmt.Errorf("%v", err.Error())
+	}
+	if check {
+		repo, err = git.PlainOpen(w)
+		if err != nil {
+			return repo, fmt.Errorf("%v", err.Error())
+		}
+		return repo, nil
+	} else {
+		init, err := git.PlainInit(w, false)
+		if err != nil {
+			return init, fmt.Errorf("%v", err.Error())
 
+		}
+	}
+	return repo, nil
 }
 
 func AddRefs(){
@@ -24,11 +43,11 @@ func CommitObjs(){
 }
 
 // CheckForGit checks for a .git directory to avoid reinitialization of an already existsing git repository
-func CheckForGit() bool{
+func CheckForGit() (bool, error){
 	var dirs []string
 	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			log.Fatalf("error checking filepath.Walk: %v\n",err)
 		}
 
 		dirs = append(dirs, path)
@@ -45,10 +64,10 @@ func CheckForGit() bool{
 		}
 		for _, x := range dir {
 			if strings.Compare(x.Name(), ".git") == 0 {
-				return false
+				return false, nil
 			}
 		}
 
 	}
-	return true
+	return true, nil
 }
