@@ -139,7 +139,7 @@ func CreateBranch(o GitOptions, g git.Repository)([]string, error){
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return refs, fmt.Errorf("%v",err.Error())
 	}
 	return refs, nil
 }
