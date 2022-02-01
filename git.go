@@ -26,16 +26,13 @@ type GitOptions struct {
 	Branches string
 }
 
-var (
-	repo *git.Repository
-)
-
 // InitRepo takes a string argument for repo path and then checks to see if it has already been initialized
 // if it has it returns the Repository, if not it initializes it and returns the repository
 func InitRepo(w string) (*git.Repository, error) {
+	var repo *git.Repository
 	check, err := CheckForGit()
 	if err != nil {
-		return nil, fmt.Errorf("%v", err.Error())
+		return repo, fmt.Errorf("%v", err.Error())
 	}
 	if !check {
 		repo, err = git.PlainOpen(w)
