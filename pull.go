@@ -103,6 +103,6 @@ func SetRemote(o GitOptions, g git.Repository) (RemoteStats, error) {
 	return remoteS, nil
 }
 
-func PushRepo(){
-	
+func PushRepo(g git.Repository){
+
 }
