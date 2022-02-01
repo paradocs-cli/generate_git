@@ -3,6 +3,7 @@ package gengit
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"log"
 	"os"
@@ -22,6 +23,7 @@ type GitOptions struct {
 		Provider string
 		Repo string
 	}
+	Branches string
 }
 
 var (
@@ -104,4 +106,37 @@ func CheckForGit() (bool, error) {
 
 	}
 	return true, nil
+}
+
+// CreateBranch takes arguments and creates x amount of refs from main based on the arguments passed and returns a slice of string with said references short names
+func CreateBranch(o GitOptions, g git.Repository)([]string, error){
+	var refs []string
+	spl := strings.Split(o.Branches, ",")
+
+	r, err := g.Head()
+	if err != nil {
+		return refs, fmt.Errorf("%v",err.Error())
+	}
+
+	for _,v := range spl {
+		plumb := fmt.Sprintf("refs/heads/%s", v)
+		ref := plumbing.NewHashReference(plumbing.ReferenceName(plumb), r.Hash())
+
+		store := g.Storer.SetReference(ref)
+		if store != nil {
+			return refs, fmt.Errorf("%v",err.Error())
+		}
+	}
+	getRefs, err := g.References()
+	if err != nil {
+		return refs, fmt.Errorf("%v",err.Error())
+	}
+
+	getRefs.ForEach(func(ref *plumbing.Reference) error {
+		if ref.Type() == plumbing.HashReference {
+			refs = append(refs, ref.Name().Short())
+		}
+		return nil
+	})
+	return refs, nil
 }
