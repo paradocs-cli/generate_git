@@ -21,7 +21,7 @@ type GitOptions struct {
 	RemoteOptions struct {
 		Pat string
 		Provider string
-		Repo string
+		RepoUrl string
 	}
 	Branches string
 }
