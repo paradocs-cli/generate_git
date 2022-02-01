@@ -37,18 +37,20 @@ func InitRepo(w string) (*git.Repository, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%v", err.Error())
 	}
-	if check {
+	if !check {
 		repo, err = git.PlainOpen(w)
 		if err != nil {
 			return repo, fmt.Errorf("%v", err.Error())
 		}
 		return repo, nil
-	} else {
+	} else if check {
 		repo, err = git.PlainInit(w, false)
 		if err != nil {
 			return repo, fmt.Errorf("%v", err.Error())
 
 		}
+		return repo, nil
+
 	}
 	return repo, nil
 }
