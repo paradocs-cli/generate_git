@@ -132,11 +132,14 @@ func CreateBranch(o GitOptions, g git.Repository)([]string, error){
 		return refs, fmt.Errorf("%v",err.Error())
 	}
 
-	getRefs.ForEach(func(ref *plumbing.Reference) error {
+	err = getRefs.ForEach(func(ref *plumbing.Reference) error {
 		if ref.Type() == plumbing.HashReference {
 			refs = append(refs, ref.Name().Short())
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	return refs, nil
 }
