@@ -30,7 +30,7 @@ type GitOptions struct {
 // if it has it returns the Repository, if not it initializes it and returns the repository
 func InitRepo(w string) (*git.Repository, error) {
 	var repo *git.Repository
-	check, err := CheckForGit()
+	check, err := CheckForGit(w)
 	if err != nil {
 		return repo, fmt.Errorf("%v", err.Error())
 	}
@@ -78,7 +78,7 @@ func CommitObjs(w git.Worktree, o GitOptions) (string, error) {
 }
 
 // CheckForGit checks for a .git directory to avoid reinitialization of an already existsing git repository
-func CheckForGit() (bool, error) {
+func CheckForGit(s string) (bool, error) {
 	var dirs []string
 	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
