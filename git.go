@@ -5,6 +5,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,9 +20,13 @@ type GitOptions struct {
 		Email   string
 	}
 	RemoteOptions struct {
+		UserName string
 		Pat string
 		Provider string
 		RepoUrl string
+	}
+	LocalOptions struct{
+		ClonePath string
 	}
 	Branches string
 }
@@ -141,4 +146,22 @@ func CreateBranch(o GitOptions, g git.Repository)([]string, error){
 		return refs, fmt.Errorf("%v",err.Error())
 	}
 	return refs, nil
+}
+
+// CloneRepo clones the remote repository into the given path and
+func CloneRepo(o GitOptions) (*git.Repository, error){
+	var clone *git.Repository
+	var err error
+	clone , err = git.PlainClone(o.LocalOptions.ClonePath, false, &git.CloneOptions{
+		URL:               o.RemoteOptions.RepoUrl,
+		Auth: &githttp.BasicAuth{
+			Username: o.RemoteOptions.UserName, // anything except an empty string
+			Password: o.RemoteOptions.Pat,
+		},
+		Progress: os.Stdout,
+	})
+	if err != nil {
+		return clone, fmt.Errorf("%v",err.Error())
+	}
+	return clone, nil
 }
